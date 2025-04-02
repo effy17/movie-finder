@@ -1,6 +1,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import {
+    Grid,
+    Typography,
+    Button,
+    TextField,
+    Paper,
+    Box,
+    Tooltip,
+} from "@mui/material";
 
 export default function Home() {
     const [inputValue, setInputValue] = useState("");
@@ -38,83 +47,146 @@ export default function Home() {
     };
 
     return (
-        <main className="p-4 grid gap-4">
-            <h1 className="text-3xl font-bold text-center">Movie Explorer</h1>
+        <Paper sx={{ p: 4, m: 4 }}>
+            <Grid container direction="column" spacing={3}>
+                <Grid item>
+                    <Typography variant="h3" align="center">
+                        Movie Explorer
+                    </Typography>
+                </Grid>
 
-            <div className="flex justify-center items-center gap-2">
-                <input
-                    type="text"
-                    placeholder="Search movies..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    className="border p-2 w-64"
-                />
-                <button
-                    onClick={handleSearch}
-                    className="bg-blue-500 text-white p-2 w-24"
-                >
-                    Search
-                </button>
-            </div>
+                <Grid item container spacing={2} alignItems="center" justifyContent="center">
+                    <Grid item xs={12} md={8}>
+                        <TextField
+                            label="Search movies..."
+                            variant="outlined"
+                            fullWidth
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Button variant="contained" color="primary" fullWidth onClick={handleSearch}>
+                            Search
+                        </Button>
+                    </Grid>
+                </Grid>
 
-            {isFetching && <p className="text-center">Loading...</p>}
-            {error && (
-                <p className="text-center text-red-500">
-                    {error instanceof Error ? error.message : "An error occurred"}
-                </p>
-            )}
+                {isFetching && (
+                    <Grid item>
+                        <Typography align="center">Loading...</Typography>
+                    </Grid>
+                )}
+                {error != null && (
+                    <Grid item>
+                        <Typography align="center" color="error">
+                            {error instanceof Error ? error.message : "An error occurred"}
+                        </Typography>
+                    </Grid>
+                )}
 
-            {searchTerm && (
-                <>
-                    {movies.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {movies.map((movie: any) => (
-                                <Link
-                                    key={movie.imdbID}
-                                    href={`/movie/${movie.imdbID}`}
-                                    className="border p-2 cursor-pointer flex flex-col items-center"
-                                >
-                                    {movie.Poster !== "N/A" ? (
-                                        <img
-                                            src={movie.Poster}
-                                            alt={movie.Title}
-                                            className="mb-2 w-full h-auto object-contain max-h-96"
-                                        />
-                                    ) : (
-                                        <div className="bg-gray-300 h-48 mb-2 flex items-center justify-center w-full">
-                                            No Image
-                                        </div>
-                                    )}
-                                    <h2 className="font-semibold text-center px-2 break-words">
-                                        {movie.Title}
-                                    </h2>
-                                    <p className="text-sm text-center">{movie.Year}</p>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        !isFetching && (
-                            <p className="text-center">No movies found on this page.</p>
-                        )
-                    )}
+                {searchTerm && (
+                    <Grid item>
+                        {movies.length > 0 ? (
+                            <Grid container spacing={2}>
+                                {movies.map((movie: any) => (
+                                    <Grid item xs={6} md={3} key={movie.imdbID}>
+                                        <Link href={`/movie/${movie.imdbID}`} passHref>
+                                            <Paper
+                                                elevation={2}
+                                                sx={{
+                                                    width: 220,
+                                                    height: 400,
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                    cursor: "pointer",
+                                                    mx: "auto",
+                                                    p: 2,
+                                                    textAlign: "center",
+                                                }}
+                                            >
+                                                {movie.Poster !== "N/A" ? (
+                                                    <Box
+                                                        sx={{
+                                                            width: "100%",
+                                                            height: 280,
+                                                            overflow: "hidden",
+                                                            mb: 1,
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={movie.Poster}
+                                                            alt={movie.Title}
+                                                            style={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                objectFit: "cover",
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                ) : (
+                                                    <Box
+                                                        sx={{
+                                                            width: "100%",
+                                                            height: 280,
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            bgcolor: "#f0f0f0",
+                                                            mb: 1,
+                                                        }}
+                                                    >
+                                                        <Typography variant="body2">No Image</Typography>
+                                                    </Box>
+                                                )}
 
-                    <div className="flex justify-between mt-4 w-full md:w-1/2 mx-auto">
-                        <button
-                            disabled={page === 1}
-                            onClick={handlePrevious}
-                            className="bg-gray-500 text-white p-2 w-24 disabled:opacity-50"
-                        >
-                            Previous
-                        </button>
-                        <button
-                            onClick={handleNext}
-                            className="bg-gray-500 text-white p-2 w-24"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </>
-            )}
-        </main>
+                                                <Box sx={{ width: "100%", flexShrink: 0 }}>
+                                                    <Tooltip title={movie.Title} arrow>
+                                                        <Typography variant="h6" noWrap>
+                                                            {movie.Title}
+                                                        </Typography>
+                                                    </Tooltip>
+                                                    <Typography variant="body2">{movie.Year}</Typography>
+                                                </Box>
+                                            </Paper>
+                                        </Link>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            !isFetching && (
+                                <Typography align="center">No movies found on this page.</Typography>
+                            )
+                        )}
+                    </Grid>
+                )}
+
+                {searchTerm && (
+                    <Grid item container spacing={2} justifyContent="center" alignItems="center">
+                        <Grid item xs={6} sm={3}>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                fullWidth
+                                disabled={page === 1}
+                                onClick={handlePrevious}
+                            >
+                                Previous
+                            </Button>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <Button variant="contained" color="secondary" fullWidth onClick={handleNext}>
+                                Next
+                            </Button>
+                        </Grid>
+                    </Grid>
+                )}
+            </Grid>
+        </Paper>
     );
 }
+
+
+
